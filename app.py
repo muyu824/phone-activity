@@ -24,12 +24,12 @@ def require_token():
     if token != EXPECTED_TOKEN: return jsonify({"error": "unauthorized"}), 401
     return None
 
-@app.route("/report", methods=["POST"])
+@app.route("/report", methods=["POST", "GET"])
 def report():
     err = require_token()
     if err: return err
     data = request.get_json(silent=True) or {}
-    app_name = data.get("app_name") or data.get("app") or "unknown"
+    app_name = request.args.get("app") or data.get("app_name") or data.get("app") or "unknown"
     now = datetime.now(CST).strftime("%Y-%m-%d %H:%M:%S")
     conn = get_db()
     conn.execute("INSERT INTO phone_activity (app_name, opened_at) VALUES (?, ?)", (app_name, now))
